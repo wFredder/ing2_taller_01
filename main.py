@@ -4,7 +4,7 @@ class Item:
     self.price = price
     self.qty = qty
     self.category = "general"
-    self.env_fee = 0
+    self.env_fee = 5
 
   def get_total(self):
     return self.price * self.qty
@@ -30,7 +30,7 @@ class ShoppingCart:
       subtotal += item.get_total()
     return subtotal
   
-  def apply_discounts(self, subtotal, is_member, has_coupon):
+  def apply_discounts(self, subtotal, is_member):
     if is_member == "yes":
       subtotal = subtotal - (subtotal * self.member_discount)
     if subtotal > 100:
@@ -38,19 +38,33 @@ class ShoppingCart:
     return subtotal
   
   def calculate_total(self, is_member, has_coupon):
-  #why i need this? @user
-    subtotal = self.calculate_subtotal()
-    subtotal = self.apply_discounts(subtotal, is_member, has_coupon)
-    total = subtotal + (subtotal * self.tax_rate)
-    if has_coupon == "YES":
-      total = total - (total * self.coupon_discount)
-    return total
+    try:
+      subtotal = self.calculate_subtotal()
+      subtotal = self.apply_discounts(subtotal, is_member)
+
+      print(f"\nTotal before tax and discount: ${subtotal}\n")
+
+      total = subtotal + (subtotal * self.tax_rate)
+      if has_coupon == "YES":
+        total = total - (total * self.coupon_discount)
+        
+      for item in self.items:
+        if item.category == "electronics":
+          total = total + item.env_fee
+      return total
+    except TypeError:
+      print("Please check the input type")
+      return -1
+    except Exception as e:
+      print(f"A error occurred: {e}")
+      return -1
+
   
 def main():
   cart = ShoppingCart()
   item1 = Item("Apple", 1.5, 10)
   item2 = Item("Banana", 0.5, 5)
-  item3 = Item("Laptop", 1000, 1)
+  item3 = Item("Laptop", "1000", 1)
   item3.category = "electronics"
   cart.add_item(item1)
   cart.add_item(item2)
